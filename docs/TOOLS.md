@@ -1,77 +1,53 @@
 # Tools Catalog & Development Guide
 
-## Current Tools (v1)
+## Current Tools (v1.1 - 17 tools)
 
-### Text Cleaner
-- **File**: `js/tools/text-cleaner.js`
-- **Category**: Text
-- **Features**: Trim edges, collapse whitespace, remove blank lines, case conversion (lower, upper, title, sentence)
-- **Live update**: Yes — cleans on every keystroke
-- **Copy/Reset**: Yes
+### Text Category
 
-### Word & Character Counter
-- **File**: `js/tools/counter.js`
-- **Category**: Text
-- **Features**: Words, characters, characters (no spaces), lines, paragraphs
-- **Live update**: Yes — counts on every keystroke
-- **Copy**: Yes (includes summary + full text)
+| Tool | File | What It Does |
+|------|------|-------------|
+| Text Cleaner | `js/tools/text-cleaner.js` | Trim edges, collapse whitespace, remove blank lines, case conversion |
+| Word Counter | `js/tools/counter.js` | Real-time words, chars, lines, paragraphs |
+| Markdown Preview | `js/tools/markdown-preview.js` | Write Markdown, see live preview (safe rendering) |
 
-### JSON Formatter
-- **File**: `js/tools/json-formatter.js`
-- **Category**: Dev
-- **Features**: Pretty-print (2-space indent), minify, validate with error location
-- **Live update**: No — button-triggered
-- **Copy**: Yes
-- **Error feedback**: Line/column info when available
+### Developer Category
 
-### URL Encoder/Decoder
-- **File**: `js/tools/url-coder.js`
-- **Category**: Dev
-- **Features**: Encode (encodeURIComponent), decode (decodeURIComponent)
-- **Live update**: No — button-triggered
-- **Copy**: Yes
+| Tool | File | What It Does |
+|------|------|-------------|
+| JSON Formatter | `js/tools/json-formatter.js` | Pretty-print, minify, validate with error location |
+| URL Encoder | `js/tools/url-coder.js` | Encode/decode percent-encoded URLs |
+| Base64 | `js/tools/base64.js` | Encode/decode Base64 (UTF-8 safe) |
+| Regex Tester | `js/tools/regex-tester.js` | Test regex patterns with real-time matching |
+| Text Diff | `js/tools/text-diff.js` | Compare two texts, see added/removed/unchanged |
 
-### Base64 Encoder/Decoder
-- **File**: `js/tools/base64.js`
-- **Category**: Dev
-- **Features**: Encode/decode with UTF-8 support (btoa/atob with unicode handling)
-- **Live update**: No — button-triggered
-- **Copy**: Yes
+### Data Category
 
-### Password Generator
-- **File**: `js/tools/password-gen.js`
-- **Category**: Security
-- **Features**: Configurable length (6–64), uppercase, lowercase, numbers, symbols
-- **Live update**: No — button-triggered
-- **Copy**: Yes
+| Tool | File | What It Does |
+|------|------|-------------|
+| CSV ↔ JSON | `js/tools/csv-json.js` | Convert between CSV and JSON formats |
+| Timestamp | `js/tools/timestamp.js` | Epoch ↔ date, live clock, ISO + local |
 
-### UUID Generator
-- **File**: `js/tools/uuid-gen.js`
-- **Category**: Dev
-- **Features**: Batch generate (1–20), uppercase toggle, uses crypto.randomUUID when available
-- **Live update**: No — button-triggered
-- **Copy**: Yes (all UUIDs)
+### Security Category
 
-### Timestamp Converter
-- **File**: `js/tools/timestamp.js`
-- **Category**: Dev
-- **Features**: Epoch ↔ date, auto-detects seconds vs milliseconds, live "now" clock, ISO + local formats, date → epoch
-- **Live update**: Yes — "now" clock updates every second
-- **Copy**: Yes
+| Tool | File | What It Does |
+|------|------|-------------|
+| Password Gen | `js/tools/password-gen.js` | Configurable length & character sets (crypto-secure) |
+| UUID Generator | `js/tools/uuid-gen.js` | RFC4122 v4 UUIDs, batch generate |
+| Hash Generator | `js/tools/hash-gen.js` | SHA-1, SHA-256, SHA-384, SHA-512 via Web Crypto |
+| JWT Decoder | `js/tools/jwt-decode.js` | Decode JWT header & payload (no verification!) |
 
-### Color Converter
-- **File**: `js/tools/color-converter.js`
-- **Category**: Design
-- **Features**: HEX ↔ RGB ↔ HSL, live preview, short HEX support (#fff)
-- **Live update**: Yes — converts on input
-- **Copy**: Yes (each format)
+### Media Category
 
-### QR Code Generator
-- **File**: `js/tools/qr-generator.js`
-- **Category**: Dev
-- **Features**: Any text/URL, configurable size (100–400px), dark/light inversion, PNG download
-- **Library**: qrcode.min.js (vendored)
-- **Download**: Yes (PNG via canvas)
+| Tool | File | What It Does |
+|------|------|-------------|
+| Image Compress | `js/tools/image-compress.js` | Compress/resize images locally (no upload) |
+| QR Code | `js/tools/qr-generator.js` | Generate QR codes, download as PNG |
+
+### Utilities Category
+
+| Tool | File | What It Does |
+|------|------|-------------|
+| Color Converter | `js/tools/color-converter.js` | HEX ↔ RGB ↔ HSL with live preview |
 
 ---
 
@@ -131,7 +107,7 @@ Create `js/tools/my-tool.js`:
     name: 'My Tool',
     desc: 'Short description',
     icon: 'MT',
-    category: 'text', // text | dev | security | design
+    category: 'text', // text | developer | data | security | media | utilities
     render,
     onMount
   };
@@ -143,14 +119,7 @@ Create `js/tools/my-tool.js`:
 Add to the `TOOLS` array in `js/app.js`:
 
 ```javascript
-{
-  id: 'my-tool',
-  name: 'My Tool',
-  desc: 'Short description',
-  icon: 'MT',
-  category: 'text',
-  tag: 'Text',
-},
+{ id: 'my-tool', name: 'My Tool', desc: 'Short description', icon: 'MT', category: 'text', tag: 'Text' },
 ```
 
 ### Step 3: Add Script Tag
@@ -176,11 +145,13 @@ Categories are defined in `js/app.js`:
 
 ```javascript
 const CATEGORIES = [
-  { id: 'all', name: 'All' },
-  { id: 'text', name: 'Text' },
-  { id: 'dev', name: 'Dev' },
-  { id: 'security', name: 'Security' },
-  { id: 'design', name: 'Design' },
+  { id: 'all', name: 'All', icon: '◯' },
+  { id: 'text', name: 'Text', icon: 'Aa' },
+  { id: 'developer', name: 'Developer', icon: '{ }' },
+  { id: 'data', name: 'Data', icon: '⇄' },
+  { id: 'security', name: 'Security', icon: '🔒' },
+  { id: 'media', name: 'Media', icon: '🖼' },
+  { id: 'utilities', name: 'Utilities', icon: '◉' },
 ];
 ```
 
@@ -224,3 +195,4 @@ When writing tools, use these via `window.App`:
 5. **Resettable**: Clear/reset button for starting over
 6. **Live where possible**: Real-time updates feel more responsive
 7. **Consistent**: Reuse the CSS component classes
+8. **Safe**: No eval, no unsanitized input, no data leaks

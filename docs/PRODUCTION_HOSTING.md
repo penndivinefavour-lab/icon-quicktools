@@ -4,122 +4,102 @@
 
 This project is a **static HTML/CSS/JS application** with no backend, no database, and no server-side logic. The PHP `php -S` server is **for development only** — do not use it in production.
 
-## Deployment Checklist
+## Current Deployment
 
-Before going public, ensure:
+**Production URL:** https://penndivinefavour-lab.github.io/icon-quicktools/
 
-- [ ] **Domain name** configured and pointing to your server
-- [ ] **SSL certificate** (HTTPS) — required for clipboard API, service workers, and modern browser features
-- [ ] **Static file server** configured (Nginx, Apache, Caddy, or Vercel/Netlify)
-- [ ] **Cache headers** set for CSS/JS (1 year with hash busting)
-- [ ] **Google Fonts** — consider self-hosting Poppins for privacy/offline
-- [ ] **Favicon** added
-- [ ] **robots.txt** and **sitemap.xml** configured
-- [ ] **Analytics** (optional, privacy-respecting)
-- [ ] **Error pages** (404, 500)
-- [ ] **Gzip/Brotli compression** enabled
+**Hosting Platform:** GitHub Pages (free, static, HTTPS enforced)
 
-## Recommended Deployment Options
+**Deployment Method:** Push to `main` branch → GitHub Actions auto-deploys via Pages.
 
-### Option 1: Static Hosting (Simplest, Best for v1)
+## Deploying Updates
 
-Push to a static host — zero server management.
-
-| Provider | Pros | Notes |
-|----------|------|-------|
-| **Netlify** | Free tier, drag-and-drop deploy, instant SSL, forms built-in | Just upload the folder |
-| **Vercel** | Free tier, Git integration, edge network | Connect repo, auto-deploy |
-| **GitHub Pages** | Free, simple, custom domain | Push to `gh-pages` branch |
-| **Cloudflare Pages** | Free, fast global CDN, unlimited bandwidth | Best performance |
-
-**Deploy to Netlify (fastest):**
-1. Go to [netlify.com](https://netlify.com)
-2. Drag the `ICON QuickTools` folder onto the deploy area
-3. Done — you get a live URL in seconds
-
-### Option 2: Nginx on a VPS
-
-If you already have a Linux server:
-
-```nginx
-server {
-    listen 80;
-    server_name quicktools.iconstudios.com;
-    root /var/www/icon-quicktools;
-    index index.html;
-
-    # Cache static assets
-    location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg|woff2)$ {
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-    }
-
-    # Enable gzip
-    gzip on;
-    gzip_types text/css application/javascript application/json;
-
-    # Security headers
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Content-Type-Options "nosniff" always;
-}
-```
-
-### Option 3: Docker (for consistency)
-
-```dockerfile
-FROM nginx:alpine
-COPY . /usr/share/nginx/html
-EXPOSE 80
-```
-
-Build and run:
 ```bash
-docker build -t icon-quicktools .
-docker run -p 8080:80 icon-quicktools
+cd "/data/data/com.termux/files/home/ICON Studios 2026/ICON QuickTools"
+git add -A
+git commit -m "your changes"
+git push origin main
 ```
 
-## What NOT to Do
+Within 1-2 minutes, changes will be live at the production URL.
 
-- ❌ Don't use `php -S` in production (single-threaded, unsecured, dev only)
-- ❌ Don't add a backend unless you actually need server-side processing
-- ❌ Don't use a heavy framework for a static site
-- ❌ Don't introduce a database — all tools are client-side
+## Verifying Deployment
 
-## Future Enhancement: Service Worker
+After pushing, check the deployment status:
 
-For full offline support (after first visit), add a service worker:
-
-```javascript
-// sw.js — minimal offline cache
-self.addEventListener('install', e => {
-  e.waitUntil(caches.open('quicktools-v1').then(cache => {
-    return cache.addAll([
-      '/',
-      '/css/style.css',
-      '/js/app.js',
-      '/js/tools/text-cleaner.js',
-      // ... all tool files
-      '/js/vendor/qrcode.min.js'
-    ]));
-  }));
-});
+```bash
+gh run list --repo penndivinefavour-lab/icon-quicktools --limit 3
 ```
 
-This is **not required for v1** but adds resilience.
+Or open the Actions tab: https://github.com/penndivinefavour-lab/icon-quicktools/actions
 
-## Post-Deployment
+## Alternative Deployment Options
 
-After going live:
-1. Test on real mobile devices (iOS Safari, Android Chrome)
-2. Test with slow 3G connection
-3. Verify all 10 tools work end-to-end
-4. Check console for errors
-5. Test back button / deep links (`#json-formatter`)
-6. Run Lighthouse audit for performance, accessibility, PWA
+### Netlify
+1. Go to [netlify.com](https://netlify.com)
+2. Create new site → Import from GitHub → select `icon-quicktools`
+3. Build settings: no build command, publish directory: root
+4. Done — instant deploy with preview URLs
+
+### Vercel
+1. Go to [vercel.com](https://vercel.com)
+2. Import project → select GitHub repo
+3. Framework: Other, Output: static
+4. Deploy
+
+### Cloudflare Pages
+1. Go to dash.cloudflare.com → Pages
+2. Create project → Connect to Git → select repo
+3. Build: none, Output: /
+4. Get `*.pages.dev` URL + custom domain support
+
+### Manual / Any Static Host
+
+Upload these files to any web server:
+- `index.html` (required)
+- `404.html` (optional, for custom 404s)
+- `css/style.css`
+- `js/` (all files)
+- `icons/` (all PNGs)
+- `manifest.json`
+- `sw.js`
+- `robots.txt`
+
+## Domain Configuration
+
+To use a custom domain (e.g., `quicktools.iconstudios.com`):
+
+### For GitHub Pages:
+1. Add a `CNAME` file with your domain
+2. Configure DNS: CNAME record pointing to `penndivinefavour-lab.github.io`
+3. In repo Settings → Pages → Custom domain
+4. Enable HTTPS enforcement
 
 ## Cost Estimate
 
 For a static site with moderate traffic:
-- **Free** — Netlify/Vercel/GitHub Pages
-- **~$5/month** — Small VPS (if you need custom server)
-- **$0** — Cloudflare Pages with custom domain (free plan is generous)
+- **Free** — GitHub Pages (100GB bandwidth/month)
+- **Free** — Netlify (100GB bandwidth/month)
+- **Free** — Vercel (100GB bandwidth/month)
+- **Free** — Cloudflare Pages (unlimited bandwidth)
+
+## Performance Tips
+
+1. **Cache headers**: GitHub Pages sets appropriate cache headers automatically
+2. **CDN**: GitHub Pages, Netlify, Vercel, and Cloudflare all use global CDNs
+3. **Compression**: All modern static hosts gzip/Brotli automatically
+4. **Service worker**: Our SW handles offline caching and repeat visits
+
+## Monitoring
+
+To check if the site is up:
+```bash
+curl -sI https://penndivinefavour-lab.github.io/icon-quicktools/ | head -5
+```
+
+## Security
+
+- HTTPS is enforced (GitHub Pages provides SSL)
+- No secrets in the repo (`.gitignore` excludes .env files)
+- Service worker scope is limited to the app origin
+- No external APIs called (except Google Fonts on first load)

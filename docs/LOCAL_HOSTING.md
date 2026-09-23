@@ -77,9 +77,24 @@ Or just keep Termux in the foreground / recent apps.
 
 ## Offline Usage
 
-Once the page loads (with internet for fonts), all 10 tools work **completely offline**. You can:
+Once the page loads (with internet for fonts), all 17 tools work **completely offline**. You can:
 - Turn off Wi-Fi after initial load
 - Use airplane mode
 - The QR code library is vendored — no CDN dependency at runtime
 
 The only thing that requires internet is loading Poppins font from Google Fonts on first visit.
+
+## Production Deployment
+
+The project is deployed to GitHub Pages and available at:
+**https://penndivinefavour-lab.github.io/icon-quicktools/**
+
+To deploy updates:
+```bash
+cd "/data/data/com.termux/files/home/ICON Studios 2026/ICON QuickTools"
+git add -A
+git commit -m "your message"
+git push origin main
+```
+
+GitHub Actions will automatically rebuild and deploy.

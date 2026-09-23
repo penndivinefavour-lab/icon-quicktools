@@ -13,7 +13,7 @@ September 23, 2026
 
 ---
 
-## Test Results: 95/95 PASS
+## Test Results: 132/132 PASS
 
 ### Text Cleaner (10 tests)
 
@@ -107,17 +107,21 @@ September 23, 2026
 | Roundtrip (seconds) | ✅ PASS |
 | Roundtrip (milliseconds) | ✅ PASS |
 
-### Color Converter (7 tests)
+### Color Converter v1.1 (32 tests)
 
 | Test | Result |
 |------|--------|
 | HEX → RGB | ✅ PASS |
 | RGB → HEX | ✅ PASS |
-| Short HEX | ✅ PASS |
-| RGB → HSL (hue range) | ✅ PASS |
-| HSL → RGB roundtrip | ✅ PASS |
-| Black (#000000) | ✅ PASS |
-| White (#ffffff) | ✅ PASS |
+| Short HEX (#fff, #000, #f00) | ✅ PASS |
+| RGB parse (comma, spaces, rgb()) | ✅ PASS |
+| HSL parse (comma, hsl()) | ✅ PASS |
+| RGB → HSL accuracy | ✅ PASS |
+| HSL → RGB roundtrip (6 colors) | ✅ PASS |
+| Edge cases (black, white, gray) | ✅ PASS |
+| Invalid input returns null | ✅ PASS |
+| Invalid range (h=400, s=101) | ✅ PASS |
+| Roundtrip for 6 colors | ✅ PASS |
 
 ### QR Code (2 tests)
 
@@ -126,23 +130,14 @@ September 23, 2026
 | Library file exists | ✅ PASS |
 | Library non-empty | ✅ PASS |
 
-### JavaScript Syntax (11 files)
+### JavaScript Syntax (17 files)
 
 | File | Result |
 |------|--------|
 | js/app.js | ✅ PASS |
-| js/tools/base64.js | ✅ PASS |
-| js/tools/color-converter.js | ✅ PASS |
-| js/tools/counter.js | ✅ PASS |
-| js/tools/json-formatter.js | ✅ PASS |
-| js/tools/password-gen.js | ✅ PASS |
-| js/tools/qr-generator.js | ✅ PASS |
-| js/tools/text-cleaner.js | ✅ PASS |
-| js/tools/timestamp.js | ✅ PASS |
-| js/tools/url-coder.js | ✅ PASS |
-| js/tools/uuid-gen.js | ✅ PASS |
+| All 17 tool files | ✅ PASS |
 
-### HTML Structure (10 tests)
+### HTML Structure (13 tests)
 
 | Check | Result |
 |-------|--------|
@@ -150,11 +145,14 @@ September 23, 2026
 | Viewport meta | ✅ PASS |
 | Theme-color | ✅ PASS |
 | Poppins font | ✅ PASS |
-| 10 tool scripts | ✅ PASS |
+| 17 tool scripts | ✅ PASS |
 | Back buttons | ✅ PASS |
 | Search input | ✅ PASS |
 | Category filters | ✅ PASS |
 | Tools grid | ✅ PASS |
+| Favorites button | ✅ PASS |
+| Manifest link | ✅ PASS |
+| SW registration | ✅ PASS |
 
 ### CSS Structure (6 tests)
 
@@ -174,7 +172,7 @@ September 23, 2026
 | index.html | ✅ PASS |
 | style.css | ✅ PASS |
 | app.js | ✅ PASS |
-| 10 tool files | ✅ PASS |
+| 17 tool files | ✅ PASS |
 | qrcode vendor | ✅ PASS |
 
 ### Server Tests (3 tests)
@@ -191,8 +189,8 @@ September 23, 2026
 
 | Metric | Value |
 |--------|-------|
-| Total Tests | 95 |
-| Passed | 95 |
+| Total Tests | 132 |
+| Passed | 132 |
 | Failed | 0 |
 | Pass Rate | 100% |
 
@@ -204,15 +202,19 @@ September 23, 2026
 2. **No visual screenshot testing**: Browser automation couldn't reach localhost in this environment. All logic tests pass, but visual rendering should be verified manually on a real device.
 3. **PHP dev server**: Not suitable for production — see PRODUCTION_HOSTING.md for deployment options.
 4. **No automated visual regression**: Tests verify logic and structure, not pixel-perfect rendering.
-5. **QR library**: Uses the qrcodejs library (vendored). Generated codes should be tested with multiple QR readers for compatibility.
+5. **Image compression**: Uses canvas.toBlob which may not work identically across all browsers.
+6. **Hash Generator**: Requires secure context (HTTPS) for crypto.subtle.
+7. **Service Worker**: May cache aggressively; users may need to clear cache for updates.
 
 ---
 
 ## Manual Testing Recommended
 
-- [ ] Open http://localhost:8000 on a real Android phone
+- [ ] Open live URL on a real Android phone
 - [ ] Verify all tool cards render correctly
 - [ ] Test each tool end-to-end
+- [ ] Test favorites (add/remove, persists across sessions)
+- [ ] Test recently used tracking
 - [ ] Test back button navigation
 - [ ] Test deep links (e.g., `#json-formatter`)
 - [ ] Test LAN access from another device
@@ -220,4 +222,12 @@ September 23, 2026
 - [ ] Test on tablet/desktop width
 - [ ] Test copy button on mobile
 - [ ] Test offline mode after initial load
+- [ ] Test PWA install prompt
 - [ ] Generate a QR code and scan it
+- [ ] Test image compression with various formats
+- [ ] Test markdown preview with various content
+- [ ] Test regex tester with complex patterns
+- [ ] Test hash generator with various inputs
+- [ ] Test JWT decoder with sample tokens
+- [ ] Test text diff with large files
+- [ ] Test CSV ↔ JSON with edge cases
