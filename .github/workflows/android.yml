@@ -1,0 +1,67 @@
+name: Build Android APK
+
+on:
+  push:
+    tags:
+      - 'android-v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: android-apk/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./android-apk
+        run: npm ci
+
+      - name: Sync web assets
+        working-directory: ./android-apk
+        run: |
+          mkdir -p www
+          cp -r ../css ../js ../icons ../index.html ../404.html ../manifest.json ../robots.txt ../sw.js www/ 2>/dev/null || true
+
+      - name: Add Android platform
+        working-directory: ./android-apk
+        run: npx cap add android --web-dir www
+
+      - name: Build debug APK
+        working-directory: ./android-apk/android
+        run: ./gradlew assembleDebug
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: icon-quicktools-debug-apk
+          path: android-apk/android/app/build/outputs/apk/debug/*.apk
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/android-v')
+        run: |
+          gh release create "${GITHUB_REF#refs/tags/}" \
+            --generate-notes \
+            android-apk/android/app/build/outputs/apk/debug/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
