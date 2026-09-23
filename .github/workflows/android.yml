@@ -28,7 +28,6 @@ jobs:
         with:
           api-level: 34
           build-tools: '34.0.0'
-          channel-0: true  # stable channel
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -41,15 +40,15 @@ jobs:
         working-directory: ./android-apk
         run: npm ci
 
-      - name: Sync web assets
-        working-directory: ./android-apk
+      - name: Sync web assets to www
         run: |
-          mkdir -p www
-          cp -r ../css ../js ../icons ../index.html www/ 2>/dev/null || true
+          mkdir -p android-apk/www
+          cp -r css js icons index.html android-apk/www/ 2>/dev/null || true
+          ls android-apk/www/
 
       - name: Add Android platform
         working-directory: ./android-apk
-        run: npx cap add android --web-dir www
+        run: npx cap add android
 
       - name: Build debug APK
         working-directory: ./android-apk/android
