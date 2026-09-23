@@ -24,7 +24,11 @@ jobs:
           java-version: '17'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          api-level: 34
+          build-tools: '34.0.0'
+          channel-0: true  # stable channel
 
       - name: Setup Node
         uses: actions/setup-node@v4
