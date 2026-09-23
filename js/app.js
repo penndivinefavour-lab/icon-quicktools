@@ -1,101 +1,48 @@
-// ICON QuickTools - Main Application
+// ICON QuickTools - Main Application v1.1
 (function () {
   'use strict';
 
   // --- Tool Registry ---
   const TOOLS = [
-    {
-      id: 'text-cleaner',
-      name: 'Text Cleaner',
-      desc: 'Fix whitespace & case',
-      icon: 'Aa',
-      category: 'text',
-      tag: 'Text',
-    },
-    {
-      id: 'counter',
-      name: 'Word Counter',
-      desc: 'Words, chars, lines',
-      icon: '#',
-      category: 'text',
-      tag: 'Text',
-    },
-    {
-      id: 'json-formatter',
-      name: 'JSON Formatter',
-      desc: 'Pretty-print & validate',
-      icon: '{ }',
-      category: 'dev',
-      tag: 'Dev',
-    },
-    {
-      id: 'url-coder',
-      name: 'URL Encoder',
-      desc: 'Encode / decode URLs',
-      icon: '%',
-      category: 'dev',
-      tag: 'Dev',
-    },
-    {
-      id: 'base64',
-      name: 'Base64',
-      desc: 'Encode & decode',
-      icon: 'B64',
-      category: 'dev',
-      tag: 'Dev',
-    },
-    {
-      id: 'password-gen',
-      name: 'Password Gen',
-      desc: 'Strong passwords',
-      icon: '***',
-      category: 'security',
-      tag: 'Security',
-    },
-    {
-      id: 'uuid-gen',
-      name: 'UUID Generator',
-      desc: 'Random UUIDs / GUIDs',
-      icon: 'ID',
-      category: 'dev',
-      tag: 'Dev',
-    },
-    {
-      id: 'timestamp',
-      name: 'Timestamp',
-      desc: 'Epoch ↔ Date',
-      icon: 'T',
-      category: 'dev',
-      tag: 'Dev',
-    },
-    {
-      id: 'color-converter',
-      name: 'Color Picker',
-      desc: 'HEX / RGB / HSL',
-      icon: '◉',
-      category: 'design',
-      tag: 'Design',
-    },
-    {
-      id: 'qr-generator',
-      name: 'QR Code',
-      desc: 'Generate QR codes',
-      icon: '▦',
-      category: 'dev',
-      tag: 'Dev',
-    },
+    // Text
+    { id: 'text-cleaner', name: 'Text Cleaner', desc: 'Fix whitespace & case', icon: 'Aa', category: 'text', tag: 'Text' },
+    { id: 'counter', name: 'Word Counter', desc: 'Words, chars, lines', icon: '#', category: 'text', tag: 'Text' },
+    { id: 'markdown-preview', name: 'Markdown Preview', desc: 'Write & preview Markdown', icon: 'MD', category: 'text', tag: 'Text' },
+    // Developer
+    { id: 'json-formatter', name: 'JSON Formatter', desc: 'Pretty-print & validate', icon: '{ }', category: 'developer', tag: 'Dev' },
+    { id: 'url-coder', name: 'URL Encoder', desc: 'Encode / decode URLs', icon: '%', category: 'developer', tag: 'Dev' },
+    { id: 'base64', name: 'Base64', desc: 'Encode & decode', icon: 'B64', category: 'developer', tag: 'Dev' },
+    { id: 'regex-tester', name: 'Regex Tester', desc: 'Test regex patterns', icon: '.*', category: 'developer', tag: 'Dev' },
+    { id: 'text-diff', name: 'Text Diff', desc: 'Compare two texts', icon: '±', category: 'developer', tag: 'Dev' },
+    // Data
+    { id: 'csv-json', name: 'CSV ↔ JSON', desc: 'Convert between formats', icon: '⇄', category: 'data', tag: 'Data' },
+    { id: 'timestamp', name: 'Timestamp', desc: 'Epoch ↔ Date', icon: 'T', category: 'data', tag: 'Data' },
+    // Security
+    { id: 'password-gen', name: 'Password Gen', desc: 'Strong passwords (crypto-secure)', icon: '***', category: 'security', tag: 'Security' },
+    { id: 'uuid-gen', name: 'UUID Generator', desc: 'Random UUIDs / GUIDs', icon: 'ID', category: 'security', tag: 'Security' },
+    { id: 'hash-gen', name: 'Hash Generator', desc: 'SHA-1/256/384/512', icon: '#', category: 'security', tag: 'Security' },
+    { id: 'jwt-decode', name: 'JWT Decoder', desc: 'Decode JWT header & payload', icon: 'JWT', category: 'security', tag: 'Security' },
+    // Media
+    { id: 'image-compress', name: 'Image Compress', desc: 'Resize & compress locally', icon: '🖼', category: 'media', tag: 'Media' },
+    { id: 'qr-generator', name: 'QR Code', desc: 'Generate QR codes', icon: '▦', category: 'media', tag: 'Media' },
+    // Utilities
+    { id: 'color-converter', name: 'Color Converter', desc: 'HEX / RGB / HSL', icon: '◉', category: 'utilities', tag: 'Utils' },
   ];
 
   const CATEGORIES = [
-    { id: 'all', name: 'All' },
-    { id: 'text', name: 'Text' },
-    { id: 'dev', name: 'Dev' },
-    { id: 'security', name: 'Security' },
-    { id: 'design', name: 'Design' },
+    { id: 'all', name: 'All', icon: '◯' },
+    { id: 'text', name: 'Text', icon: 'Aa' },
+    { id: 'developer', name: 'Developer', icon: '{ }' },
+    { id: 'data', name: 'Data', icon: '⇄' },
+    { id: 'security', name: 'Security', icon: '🔒' },
+    { id: 'media', name: 'Media', icon: '🖼' },
+    { id: 'utilities', name: 'Utilities', icon: '◉' },
   ];
 
   let currentCategory = 'all';
   let searchQuery = '';
+  let favorites = JSON.parse(localStorage.getItem('qt-favorites') || '[]');
+  let recentlyUsed = JSON.parse(localStorage.getItem('qt-recently-used') || '[]');
 
   // --- DOM ---
   const $homeScreen = document.getElementById('home-screen');
@@ -124,6 +71,29 @@
     setTimeout(() => el.remove(), 2100);
   }
 
+  // --- Favorites ---
+  function toggleFavorite(toolId) {
+    const idx = favorites.indexOf(toolId);
+    if (idx >= 0) {
+      favorites.splice(idx, 1);
+      toast('Removed from favorites');
+    } else {
+      favorites.unshift(toolId);
+      toast('Added to favorites!', 'success');
+    }
+    localStorage.setItem('qt-favorites', JSON.stringify(favorites));
+  }
+
+  function isFavorite(toolId) {
+    return favorites.includes(toolId);
+  }
+
+  // --- Recently Used ---
+  function addToRecentlyUsed(toolId) {
+    recentlyUsed = [toolId, ...recentlyUsed.filter(id => id !== toolId)].slice(0, 6);
+    localStorage.setItem('qt-recently-used', JSON.stringify(recentlyUsed));
+  }
+
   // --- Screen Navigation ---
   function showScreen(screen) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -140,9 +110,28 @@
     const tool = window.ToolRegistry && window.ToolRegistry[toolId];
     if (!tool) return;
 
+    addToRecentlyUsed(toolId);
+
     $toolTitle.textContent = tool.name;
     $toolIcon.textContent = tool.icon;
     $toolBody.innerHTML = '';
+
+    // Update favorites button in header
+    const favBtn = document.getElementById('fav-btn');
+    if (favBtn) {
+      function updateFavBtn() {
+        const fav = isFavorite(toolId);
+        favBtn.innerHTML = fav ? '★' : '☆';
+        favBtn.title = fav ? 'Remove from favorites' : 'Add to favorites';
+        favBtn.setAttribute('aria-pressed', fav ? 'true' : 'false');
+      }
+      updateFavBtn();
+      favBtn.onclick = () => {
+        toggleFavorite(toolId);
+        updateFavBtn();
+        if (currentCategory === 'all') renderTools();
+      };
+    }
 
     // Build tool content
     const content = tool.render();
@@ -167,10 +156,12 @@
       toast('Nothing to copy', 'error');
       return;
     }
+    if (navigator.share && navigator.canShare && navigator.canShare({ text })) {
+      navigator.share({ text }).catch(() => {});
+    }
     navigator.clipboard.writeText(text).then(
       () => toast((label || 'Copied') + '!'),
       () => {
-        // Fallback for non-HTTPS
         const ta = document.createElement('textarea');
         ta.value = text;
         ta.style.position = 'fixed';
@@ -204,7 +195,7 @@
     CATEGORIES.forEach(cat => {
       const chip = document.createElement('button');
       chip.className = 'cat-chip' + (cat.id === currentCategory ? ' active' : '');
-      chip.textContent = cat.name;
+      chip.innerHTML = '<span class="cat-chip-icon">' + (cat.icon || '') + '</span> ' + cat.name;
       chip.setAttribute('role', 'tab');
       chip.setAttribute('aria-selected', cat.id === currentCategory);
       chip.addEventListener('click', () => {
@@ -220,7 +211,7 @@
     $toolsGrid.innerHTML = '';
     const q = searchQuery.toLowerCase().trim();
 
-    const filtered = TOOLS.filter(t => {
+    let filtered = TOOLS.filter(t => {
       const catMatch = currentCategory === 'all' || t.category === currentCategory;
       const searchMatch =
         !q ||
@@ -230,6 +221,13 @@
         t.category.toLowerCase().includes(q);
       return catMatch && searchMatch;
     });
+
+    // Show favorites first if on "all" with no search
+    if (currentCategory === 'all' && !q) {
+      const favTools = filtered.filter(t => isFavorite(t.id));
+      const restTools = filtered.filter(t => !isFavorite(t.id));
+      filtered = [...favTools, ...restTools];
+    }
 
     if (filtered.length === 0) {
       const nr = document.createElement('div');
@@ -242,17 +240,12 @@
 
     filtered.forEach(tool => {
       const card = document.createElement('button');
-      card.className = 'tool-card';
+      card.className = 'tool-card' + (isFavorite(tool.id) ? ' tool-card-fav' : '');
       card.innerHTML =
-        '<div class="tool-card-icon">' +
-        tool.icon +
-        '</div><div class="tool-card-name">' +
-        tool.name +
-        '</div><div class="tool-card-desc">' +
-        tool.desc +
-        '</div><span class="tool-card-tag">' +
-        tool.tag +
-        '</span>';
+        '<div class="tool-card-icon">' + tool.icon + '</div>' +
+        '<div class="tool-card-name">' + tool.name + '</div>' +
+        '<div class="tool-card-desc">' + tool.desc + '</div>' +
+        '<span class="tool-card-tag">' + (isFavorite(tool.id) ? '★ ' : '') + tool.tag + '</span>';
       card.addEventListener('click', () => openTool(tool.id));
       $toolsGrid.appendChild(card);
     });
@@ -284,6 +277,7 @@
     downloadText,
     openTool,
     goHome,
+    toggleFavorite,
   };
 
   renderCategories();

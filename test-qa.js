@@ -199,18 +199,123 @@ function hslToRgb(h, s, l) {
   return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
 }
 
-const rgb1 = hexToRgb('#6b21a8');
-assert('Color: hex→rgb', rgb1.r === 107 && rgb1.g === 33 && rgb1.b === 168);
-const hex1 = rgbToHex(107, 33, 168);
-assert('Color: rgb→hex', hex1 === '#6b21a8');
-const rgb2 = hexToRgb('#fff');
-assert('Color: short hex', rgb2.r === 255 && rgb2.g === 255 && rgb2.b === 255);
-const hsl1 = rgbToHsl(107, 33, 168);
-assert('Color: rgb→hsl h', hsl1.h >= 269 && hsl1.h <= 273);
-const rgbBack = hslToRgb(hsl1.h, hsl1.s, hsl1.l);
-assert('Color: hsl→rgb roundtrip', Math.abs(rgbBack.r - 107) <= 2 && Math.abs(rgbBack.g - 33) <= 2 && Math.abs(rgbBack.b - 168) <= 2);
-assert('Color: black', JSON.stringify(hexToRgb('#000000')) === JSON.stringify({r:0,g:0,b:0}));
-assert('Color: white', JSON.stringify(hexToRgb('#ffffff')) === JSON.stringify({r:255,g:255,b:255}));
+// === COLOR CONVERTER (v1.1 rewrite regression tests) ===
+// These test the exact functions used in color-converter.js
+
+function hexToRgb(hex) {
+  hex = hex.replace('#', '').trim();
+  if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+  if (!/^[0-9a-fA-F]{6}$/.test(hex)) return null;
+  const num = parseInt(hex, 16);
+  return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+}
+
+function rgbToHex(r, g, b) {
+  return '#' + [r, g, b].map(v => Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0')).join('');
+}
+
+function rgbToHsl(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h = 0, s = 0, l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+  }
+  return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+}
+
+function hslToRgb(h, s, l) {
+  h /= 360; s /= 100; l /= 100;
+  let r, g, b;
+  if (s === 0) { r = g = b = l; }
+  else {
+    const hue2rgb = (p, q, t) => {
+      if (t < 0) t += 1; if (t > 1) t -= 1;
+      if (t < 1/6) return p + (q - p) * 6 * t;
+      if (t < 1/2) return q;
+      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+      return p;
+    };
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1/3); g = hue2rgb(p, q, h); b = hue2rgb(p, q, h - 1/3);
+  }
+  return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
+}
+
+function parseRgb(value) {
+  const match = value.match(/(\d{1,3})\D+(\d{1,3})\D+(\d{1,3})/);
+  if (!match) return null;
+  const r = parseInt(match[1], 10), g = parseInt(match[2], 10), b = parseInt(match[3], 10);
+  if ([r, g, b].some(v => v < 0 || v > 255)) return null;
+  return { r, g, b };
+}
+
+function parseHsl(value) {
+  const match = value.match(/(\d{1,3})\D+(\d{1,3})\D+(\d{1,3})/);
+  if (!match) return null;
+  const h = parseInt(match[1], 10), s = parseInt(match[2], 10), l = parseInt(match[3], 10);
+  if (h > 360 || s > 100 || l > 100) return null;
+  return { h, s, l };
+}
+
+// Regression: ensure hexToRgb returns null for invalid input (not NaN)
+assert('Color v1.1: hexToRgb invalid returns null', hexToRgb('#zzz') === null);
+assert('Color v1.1: hexToRgb null for partial', hexToRgb('#abcde') === null);
+assert('Color v1.1: hexToRgb works with #', hexToRgb('#6b21a8').r === 107);
+assert('Color v1.1: hexToRgb works without #', hexToRgb('6b21a8').r === 107);
+
+// Regression: short hex expansion
+assert('Color v1.1: short hex #fff', JSON.stringify(hexToRgb('#fff')) === JSON.stringify({r:255,g:255,b:255}));
+assert('Color v1.1: short hex #000', JSON.stringify(hexToRgb('#000')) === JSON.stringify({r:0,g:0,b:0}));
+assert('Color v1.1: short hex #f00', JSON.stringify(hexToRgb('#f00')) === JSON.stringify({r:255,g:0,b:0}));
+
+// Regression: roundtrip HEX → RGB → HEX
+const colors = ['#6b21a8', '#ffffff', '#000000', '#ff5733', '#1a2744', '#f5c518'];
+for (const c of colors) {
+  const rgb = hexToRgb(c);
+  const hexBack = rgbToHex(rgb.r, rgb.g, rgb.b);
+  assert(`Color v1.1: roundtrip ${c}`, hexBack === c.toLowerCase());
+}
+
+// Regression: RGB parse robustness
+assert('Color v1.1: parseRgb comma-space', JSON.stringify(parseRgb('107, 33, 168')) === JSON.stringify({r:107,g:33,b:168}));
+assert('Color v1.1: parseRgb spaces', JSON.stringify(parseRgb('107 33 168')) === JSON.stringify({r:107,g:33,b:168}));
+assert('Color v1.1: parseRgb with rgb()', JSON.stringify(parseRgb('rgb(107, 33, 168)')) === JSON.stringify({r:107,g:33,b:168}));
+assert('Color v1.1: parseRgb invalid (256)', parseRgb('256, 0, 0') === null);
+assert('Color v1.1: parseRgb empty', parseRgb('') === null);
+
+// Regression: HSL parse
+assert('Color v1.1: parseHsl normal', JSON.stringify(parseHsl('271, 76, 36')) === JSON.stringify({h:271,s:76,l:36}));
+assert('Color v1.1: parseHsl with hsl()', JSON.stringify(parseHsl('hsl(271, 76%, 36%)')) === JSON.stringify({h:271,s:76,l:36}));
+assert('Color v1.1: parseHsl invalid h=400', parseHsl('400, 50, 50') === null);
+assert('Color v1.1: parseHsl invalid s=101', parseHsl('180, 101, 50') === null);
+
+// Regression: RGB → HSL accuracy
+const purpleHsl = rgbToHsl(107, 33, 168);
+assert('Color v1.1: purple hue ~271', purpleHsl.h >= 269 && purpleHsl.h <= 273);
+assert('Color v1.1: purple sat ~67', purpleHsl.s >= 65 && purpleHsl.s <= 69);
+assert('Color v1.1: purple light ~39', purpleHsl.l >= 37 && purpleHsl.l <= 41);
+
+// Edge cases
+assert('Color v1.1: black hsl', JSON.stringify(rgbToHsl(0,0,0)) === JSON.stringify({h:0,s:0,l:0}));
+assert('Color v1.1: white hsl', JSON.stringify(rgbToHsl(255,255,255)) === JSON.stringify({h:0,s:0,l:100}));
+assert('Color v1.1: gray s=0', rgbToHsl(128,128,128).s === 0);
+
+// HSL → RGB roundtrip using actual computed HSL values (tests true roundtrip precision)
+const testColors = [[107,33,168],[255,255,255],[0,0,0],[255,87,51],[26,39,68],[245,197,24]];
+for (const [r,g,b] of testColors) {
+  const hsl = rgbToHsl(r,g,b);
+  const rgbBack = hslToRgb(hsl.h, hsl.s, hsl.l);
+  assert(`Color v1.1: hsl→rgb roundtrip ${r},${g},${b}`, 
+    Math.abs(rgbBack.r - r) <= 2 && Math.abs(rgbBack.g - g) <= 2 && Math.abs(rgbBack.b - b) <= 2);
+}
 
 // === QR CODE ===
 // Check QR library loaded
@@ -236,11 +341,14 @@ assert('HTML: DOCTYPE', html.includes('<!DOCTYPE html>'));
 assert('HTML: viewport meta', html.includes('name="viewport"'));
 assert('HTML: theme-color', html.includes('name="theme-color"'));
 assert('HTML: Poppins font', html.includes('Poppins'));
-assert('HTML: 10 tool scripts', (html.match(/js\/tools\//g) || []).length === 10);
+assert('HTML: 17 tool scripts', (html.match(/js\/tools\//g) || []).length === 17);
 assert('HTML: back buttons', (html.match(/back-btn/g) || []).length >= 1);
 assert('HTML: search input', html.includes('id="search-input"'));
 assert('HTML: category filters', html.includes('id="category-filters"'));
 assert('HTML: tools grid', html.includes('id="tools-grid"'));
+assert('HTML: fav-btn', html.includes('id="fav-btn"'));
+assert('HTML: manifest', html.includes('rel="manifest"'));
+assert('HTML: sw registration', html.includes('serviceWorker'));
 
 // === CSS STRUCTURE ===
 const css = fs.readFileSync(path.join(__dirname, 'css/style.css'), 'utf-8');
@@ -255,7 +363,7 @@ assert('CSS: toast styles', css.includes('.toast'));
 assert('Project: index.html', fs.existsSync(path.join(__dirname, 'index.html')));
 assert('Project: style.css', fs.existsSync(path.join(__dirname, 'css/style.css')));
 assert('Project: app.js', fs.existsSync(path.join(__dirname, 'js/app.js')));
-assert('Project: 10 tools', fs.readdirSync(TOOLS_DIR).length === 10);
+assert('Project: 17 tools', fs.readdirSync(TOOLS_DIR).length === 17);
 assert('Project: qrcode vendor', fs.existsSync(path.join(__dirname, 'js/vendor/qrcode.min.js')));
 
 // === SERVER TEST ===

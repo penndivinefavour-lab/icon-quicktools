@@ -2,12 +2,41 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#1a2744" />
   <title>ICON QuickTools — Free Online Utilities</title>
+  <meta name="description" content="Free, fast, offline-ready web utilities — text tools, developer tools, security tools, and more. No sign-up, no tracking, no bloat." />
+  <meta name="keywords" content="web tools, text tools, json formatter, base64, url encoder, password generator, uuid, qr code, color converter, markdown, regex tester, hash generator, jwt decoder, image compressor, csv json" />
+  <meta name="author" content="ICON Studios" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://quicktools.iconstudios.com/" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="ICON QuickTools — Free Online Utilities" />
+  <meta property="og:description" content="Free, fast, offline-ready web utilities — text tools, developer tools, security tools, and more." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://quicktools.iconstudios.com/" />
+  <meta property="og:image" content="https://quicktools.iconstudios.com/icons/icon-512.png" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ICON QuickTools — Free Online Utilities" />
+  <meta name="twitter:description" content="Free, fast, offline-ready web utilities." />
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="QuickTools" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png" />
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -56,6 +85,7 @@
             <span id="tool-icon" class="tool-icon-display"></span>
             <span id="tool-title" class="tool-title-display"></span>
           </div>
+          <button id="fav-btn" class="btn-icon" aria-label="Add to favorites" title="Add to favorites">☆</button>
         </div>
       </header>
       <main id="tool-body" class="tool-body"></main>
@@ -85,7 +115,7 @@
     </div>
   </div>
 
-  <script src="js/vendor/qrcode.min.js"></script>
+  <!-- Original v1 tools -->
   <script src="js/tools/text-cleaner.js"></script>
   <script src="js/tools/counter.js"></script>
   <script src="js/tools/json-formatter.js"></script>
@@ -96,6 +126,25 @@
   <script src="js/tools/timestamp.js"></script>
   <script src="js/tools/color-converter.js"></script>
   <script src="js/tools/qr-generator.js"></script>
+  <!-- v1.1 new tools -->
+  <script src="js/tools/image-compress.js"></script>
+  <script src="js/tools/markdown-preview.js"></script>
+  <script src="js/tools/regex-tester.js"></script>
+  <script src="js/tools/hash-gen.js"></script>
+  <script src="js/tools/jwt-decode.js"></script>
+  <script src="js/tools/text-diff.js"></script>
+  <script src="js/tools/csv-json.js"></script>
+  <!-- QR library (vendored) -->
+  <script src="js/vendor/qrcode.min.js"></script>
+  <!-- Main app -->
   <script src="js/app.js"></script>
+  <script>
+    // Register service worker for offline/PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>

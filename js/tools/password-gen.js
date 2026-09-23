@@ -1,4 +1,4 @@
-// Password Generator Tool
+// Password Generator Tool v1.1 — uses crypto.getRandomValues for security
 (function () {
   const id = 'password-gen';
 
@@ -10,9 +10,19 @@
     if (symbols) chars += '!@#$%^&*()-_=+[]{}|;:,.<>?';
     if (!chars) chars = 'abcdefghijklmnopqrstuvwxyz';
 
+    // Use crypto.getRandomValues when available for better security
     let password = '';
-    for (let i = 0; i < length; i++) {
-      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    if (window.crypto && window.crypto.getRandomValues) {
+      const arr = new Uint32Array(length);
+      window.crypto.getRandomValues(arr);
+      for (let i = 0; i < length; i++) {
+        password += chars.charAt(arr[i] % chars.length);
+      }
+    } else {
+      // Fallback (less secure, but functional)
+      for (let i = 0; i < length; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
     }
     return password;
   }
@@ -20,7 +30,7 @@
   function render() {
     const wrap = document.createElement('div');
     wrap.innerHTML = `
-      <p class="tool-desc">Generate strong, random passwords with customizable options.</p>
+      <p class="tool-desc">Generate strong, random passwords using cryptographically secure randomness.</p>
       <div class="options-row" style="flex-direction:column; align-items:stretch; gap:12px">
         <label class="option" style="justify-content:space-between">
           <span>Length: <strong id="pg-length-val">16</strong></span>
@@ -65,10 +75,7 @@
       output.value = generate(len, upper, lower, numbers, symbols);
     }
 
-    root.querySelector('#pg-generate').addEventListener('click', () => {
-      generatePassword();
-    });
-
+    root.querySelector('#pg-generate').addEventListener('click', generatePassword);
     root.querySelector('#pg-copy').addEventListener('click', () => {
       if (!output.value) { window.App.toast('Nothing to copy', 'error'); return; }
       window.App.copyText(output.value, 'Password copied');
@@ -76,5 +83,5 @@
   }
 
   if (!window.ToolRegistry) window.ToolRegistry = {};
-  window.ToolRegistry[id] = { id, name: 'Password Gen', desc: 'Strong passwords', icon: '***', category: 'security', render, onMount };
+  window.ToolRegistry[id] = { id, name: 'Password Gen', desc: 'Strong passwords (crypto-secure)', icon: '***', category: 'security', render, onMount };
 })();

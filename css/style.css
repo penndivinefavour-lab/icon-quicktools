@@ -656,3 +656,53 @@ textarea.input[readonly] {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* === Category Chip Icon === */
+.cat-chip-icon {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+/* === Favorites === */
+.tool-card-fav {
+  border-color: var(--gold) !important;
+  box-shadow: 0 0 0 1px var(--gold), var(--shadow-sm);
+}
+
+.tool-card-fav .tool-card-tag {
+  color: var(--gold);
+  background: rgba(245, 197, 24, 0.08);
+}
+
+/* === Favorites Button === */
+#fav-btn {
+  font-size: 1.1rem;
+  color: var(--gold);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: transform 0.15s ease;
+}
+
+#fav-btn:hover {
+  transform: scale(1.15);
+}
+
+#fav-btn:active {
+  transform: scale(0.95);
+}
+
+/* === Focus States === */
+*:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: 2px;
+}
+
+/* === Print === */
+@media print {
+  .topbar, .footer, .actions, .btn { display: none !important; }
+  .tool-body { padding: 0; }
+}

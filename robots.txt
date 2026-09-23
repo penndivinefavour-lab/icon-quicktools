@@ -1,0 +1,5 @@
+# robots.txt for ICON QuickTools
+User-agent: *
+Allow: /
+
+Sitemap: https://quicktools.iconstudios.com/sitemap.xml
