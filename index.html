@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a2744" />
+  <title>ICON QuickTools — Free Online Utilities</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Home Screen -->
+    <div id="home-screen" class="screen active">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <div class="brand">
+            <div class="brand-mark">◆</div>
+            <span class="brand-name">ICON QuickTools</span>
+          </div>
+          <button id="about-btn" class="btn-icon" aria-label="About">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <section class="hero">
+        <h1>Quick tools for everyday tasks</h1>
+        <p class="hero-sub">Free, fast, offline-ready utilities — no sign-up, no tracking.</p>
+      </section>
+
+      <div class="search-wrap">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="search-input" type="search" placeholder="Search tools…" aria-label="Search tools" autocomplete="off" />
+      </div>
+
+      <div id="category-filters" class="category-filters" role="tablist"></div>
+
+      <main id="tools-grid" class="tools-grid" aria-live="polite"></main>
+
+      <footer class="footer">
+        <p>© 2026 ICON Studios · Made with purpose in Yaoundé</p>
+      </footer>
+    </div>
+
+    <!-- Tool Screen -->
+    <div id="tool-screen" class="screen">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <button id="back-btn" class="btn-icon" aria-label="Back to home">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <div class="tool-title-wrap">
+            <span id="tool-icon" class="tool-icon-display"></span>
+            <span id="tool-title" class="tool-title-display"></span>
+          </div>
+        </div>
+      </header>
+      <main id="tool-body" class="tool-body"></main>
+    </div>
+
+    <!-- About Screen -->
+    <div id="about-screen" class="screen">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <button id="about-back-btn" class="btn-icon" aria-label="Back">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <span class="tool-title-display">About</span>
+        </div>
+      </header>
+      <main class="about-body">
+        <div class="about-mark">◆</div>
+        <h2>ICON QuickTools</h2>
+        <p>A fast, mobile-first utility platform by ICON Studios. Clean, focused tools that just work — on your phone, on your laptop, anywhere.</p>
+        <div class="about-stats">
+          <div class="stat"><strong id="stat-count">0</strong><span>Tools</span></div>
+          <div class="stat"><strong>Free</strong><span>Forever</span></div>
+          <div class="stat"><strong>Offline</strong><span>Ready</span></div>
+        </div>
+        <p class="about-credit">Built by Divine Favour · ICON Studios · Yaoundé, Cameroon</p>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/vendor/qrcode.min.js"></script>
+  <script src="js/tools/text-cleaner.js"></script>
+  <script src="js/tools/counter.js"></script>
+  <script src="js/tools/json-formatter.js"></script>
+  <script src="js/tools/url-coder.js"></script>
+  <script src="js/tools/base64.js"></script>
+  <script src="js/tools/password-gen.js"></script>
+  <script src="js/tools/uuid-gen.js"></script>
+  <script src="js/tools/timestamp.js"></script>
+  <script src="js/tools/color-converter.js"></script>
+  <script src="js/tools/qr-generator.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
