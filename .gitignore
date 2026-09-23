@@ -22,3 +22,9 @@ npm-debug.log*
 # OS
 .Spotlight-V100
 .Trashes
+
+# Android build (local)
+android-apk/android/
+android-apk/node_modules/
+android-apk/www/
+!android-apk/www/.gitkeep
